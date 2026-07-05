@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"pages\\\\platform.js -> socket.io-client\":{\"id\":\"pages\\\\platform.js -> socket.io-client\",\"files\":[\"static/chunks/node_modules_socket_io-client_build_esm_index_js.js\"]}}"
