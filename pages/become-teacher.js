@@ -12,13 +12,72 @@ export default function BecomeTeacher() {
     email: "",
     password: "",
     speciality: "general",
-    pricePerHour: 60,
     experience: 1,
     certifications: "",
     bio: "",
     acceptTerms: false,
   });
+  const [selectedPlan, setSelectedPlan] = useState("Gratuito");
   const [loading, setLoading] = useState(false);
+
+  const teacherPlans = [
+    {
+      title: "Gratuito",
+      price: "0",
+      period: "mês",
+      classes: "4 aulas",
+      storage: "1GB",
+      description: "Plano inicial para começar a ensinar e conhecer a plataforma.",
+      features: [
+        "Até 10 alunos ativos",
+        "Perfil público de professor",
+        "Painel básico de gerência",
+        "Sem taxa adicional",
+      ],
+    },
+    {
+      title: "Starter",
+      price: "29",
+      period: "mês",
+      classes: "8 aulas",
+      storage: "5GB",
+      description: "Mais visibilidade e mais aulas por mês.",
+      features: [
+        "Até 50 alunos ativos",
+        "Perfil em destaque",
+        "Relatórios mensais",
+        "Suporte básico prioritário",
+      ],
+    },
+    {
+      title: "Profissional",
+      price: "69",
+      period: "mês",
+      classes: "16 aulas",
+      storage: "15GB",
+      description: "Para professores com alta demanda e agenda cheia.",
+      features: [
+        "Uploads ilimitados de materiais",
+        "Agenda flexível",
+        "Estatísticas avançadas",
+        "Suporte prioritário",
+      ],
+    },
+    {
+      title: "Premium",
+      price: "129",
+      period: "mês",
+      classes: "Aulas ilimitadas",
+      storage: "50GB",
+      description: "Para professores que querem crescer rápido.",
+      features: [
+        "Suporte dedicado",
+        "Conteúdo de vídeo e arquivos grandes",
+        "Consultoria para crescimento",
+        "Prioridade no painel",
+      ],
+    },
+  ];
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -78,15 +137,52 @@ export default function BecomeTeacher() {
                   </motion.h2>
 
                   <motion.p className="text-lg text-blue-100 mb-8 leading-relaxed" variants={itemVariants}>
-                    Junte-se a centenas de professores que já ganham com aulas de inglês na nossa plataforma.
+                    Junte-se a centenas de professores que já ensinam com flexibilidade, alcance mais alunos e escolha o plano certo para sua rotina.
                   </motion.p>
+
+                  <motion.div className="mb-6 rounded-3xl border border-yellow-400/20 bg-slate-900/80 p-5" variants={itemVariants}>
+                    <h3 className="text-white font-bold text-xl mb-4">Escolha o melhor plano para você</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {teacherPlans.map((plan) => (
+                        <button
+                          key={plan.title}
+                          type="button"
+                          onClick={() => setSelectedPlan(plan.title)}
+                          className={`rounded-2xl border p-4 text-left transition-all ${
+                            selectedPlan === plan.title
+                              ? "border-yellow-400 bg-yellow-400/10"
+                              : "border-blue-400/20 bg-slate-950/70 hover:border-yellow-400"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-sm uppercase tracking-[0.25em] text-blue-200">{plan.title}</p>
+                            <span className="text-yellow-300 text-sm">{plan.classes}</span>
+                          </div>
+                          <h4 className="text-2xl font-black text-white mb-2">
+                            R$ {plan.price}
+                            <span className="text-base font-medium text-blue-300">/{plan.period}</span>
+                          </h4>
+                          <p className="text-blue-300 text-sm mb-2">{plan.description}</p>
+                          <p className="text-blue-200 text-xs mb-3">Armazenamento de arquivos: {plan.storage}</p>
+                          <div className="space-y-1 text-blue-100 text-xs">
+                            {plan.features.map((feature) => (
+                              <p key={feature}>• {feature}</p>
+                            ))}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-4 text-blue-200 text-sm">
+                      Escolha o melhor plano para o seu ritmo de ensino: <span className="text-yellow-300">{selectedPlan}</span>
+                    </p>
+                  </motion.div>
 
                   <motion.div className="space-y-4" variants={itemVariants}>
                     {[
-                      { icon: "💰", title: "Sua Renda", desc: "Você recebe 80-85% de cada aula" },
-                      { icon: "📅", title: "Flexibilidade", desc: "Escolha seus próprios horários" },
-                      { icon: "🌍", title: "Alcance Global", desc: "Ensine alunos de qualquer país" },
-                      { icon: "📊", title: "Análises", desc: "Acompanhe seu desempenho" },
+                      { icon: "💰", title: "Sua Renda", desc: "Recursos que ampliam seus ganhos." },
+                      { icon: "📅", title: "Flexibilidade", desc: "Ensine nos horários que funcionam para você" },
+                      { icon: "🌍", title: "Alcance Global", desc: "Conecte-se com alunos de qualquer lugar" },
+                      { icon: "📊", title: "Análises", desc: "Veja seus resultados e melhore suas aulas" },
                     ].map((item, idx) => (
                       <motion.div key={idx} className="flex items-start gap-4" variants={itemVariants}>
                         <span className="text-3xl">{item.icon}</span>
@@ -96,19 +192,6 @@ export default function BecomeTeacher() {
                         </div>
                       </motion.div>
                     ))}
-                  </motion.div>
-
-                  {/* Earnings Example */}
-                  <motion.div
-                    className="mt-8 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 border border-yellow-400/30 rounded-lg p-6"
-                    variants={itemVariants}
-                  >
-                    <h4 className="text-white font-bold mb-4">Exemplo de Ganhos/Mês</h4>
-                    <div className="space-y-2 text-blue-100 text-sm">
-                      <p>4 aulas/semana × R$ 60 = R$ 960/mês</p>
-                      <p className="font-bold text-yellow-400">Você recebe: R$ 816/mês</p>
-                      <p className="text-xs">Comissão da plataforma: 15%</p>
-                    </div>
                   </motion.div>
                 </motion.div>
               </div>
@@ -191,30 +274,6 @@ export default function BecomeTeacher() {
                         <option value="exam">Preparação para Exames</option>
                         <option value="conversation">Conversação</option>
                       </select>
-                    </motion.div>
-
-                    {/* Price */}
-                    <motion.div variants={itemVariants}>
-                      <label className="block text-white font-semibold mb-2">
-                        Preço por Hora (R$)
-                      </label>
-                      <div className="flex items-center gap-4">
-                        <input
-                          type="range"
-                          name="pricePerHour"
-                          value={formData.pricePerHour}
-                          onChange={handleChange}
-                          min="30"
-                          max="150"
-                          className="flex-grow"
-                        />
-                        <span className="text-yellow-400 font-bold text-lg whitespace-nowrap">
-                          R$ {formData.pricePerHour}
-                        </span>
-                      </div>
-                      <p className="text-blue-300 text-xs mt-2">
-                        Você receberá: R$ {Math.round(formData.pricePerHour * 0.85)}
-                      </p>
                     </motion.div>
 
                     {/* Experience */}

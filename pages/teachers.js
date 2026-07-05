@@ -95,6 +95,66 @@ export default function Teachers() {
     hover: { y: -10, boxShadow: "0 20px 40px rgba(250, 204, 21, 0.2)" },
   };
 
+  const teacherPlans = [
+    {
+      title: "Gratuito",
+      price: "0",
+      period: "mês",
+      storage: "1GB",
+      classes: "10 aulas",
+      description: "Ideal para começar como professor e testar a plataforma.",
+      features: [
+        "Até 20 alunos ativos",
+        "Inclui perfil público de professor",
+        "Acesso ao painel básico",
+        "Sem cobrança adicional",
+      ],
+      highlight: true,
+    },
+    {
+      title: "Starter",
+      price: "29",
+      period: "mês",
+      storage: "5GB",
+      classes: "25 aulas",
+      description: "Plano econômico com limite maior de aulas e recursos adicionais.",
+      features: [
+        "Até 50 alunos ativos",
+        "Perfil em destaque",
+        "Relatórios de aulas mensais",
+        "Suporte prioritário básico",
+      ],
+    },
+    {
+      title: "Profissional",
+      price: "69",
+      period: "mês",
+      storage: "15GB",
+      classes: "60 aulas",
+      description: "Perfeito para professores com agenda cheia e mais aulas por mês.",
+      features: [
+        "Uploads ilimitados de materiais",
+        "Agenda flexível e API básica",
+        "Estatísticas avançadas",
+        "Suporte prioritário",
+      ],
+    },
+    {
+      title: "Premium",
+      price: "129",
+      period: "mês",
+      storage: "50GB",
+      classes: "Aulas ilimitadas",
+      description: "Para professores com alta demanda e crescimento rápido.",
+      features: [
+        "Suporte dedicado",
+        "Prioridade total no painel",
+        "Conteúdo de vídeo e arquivos grandes",
+        "Consultoria para crescimento",
+      ],
+    },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
       <Navbar />
@@ -126,7 +186,9 @@ export default function Teachers() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-white font-bold text-lg mb-1">Você é Professor?</h3>
-                  <p className="text-blue-100">Ganhe dinheiro ensinando inglês na nossa plataforma</p>
+                  <p className="text-blue-100">
+                    Comece com o plano gratuito e escolha o plano ideal para a sua rotina de aulas.
+                  </p>
                 </div>
                 <motion.a
                   href="/become-teacher"
@@ -138,6 +200,63 @@ export default function Teachers() {
                 </motion.a>
               </div>
             </motion.div>
+          </motion.div>
+
+          {/* Planos */}
+          <motion.div
+            className="mb-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h3 className="text-white font-bold mb-4">Planos para Professores</h3>
+            <p className="text-blue-100 max-w-2xl mb-6">
+              O primeiro plano é gratuito para atrair novos professores. Escolha o plano ideal com limites de aulas e recursos para sua jornada.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {teacherPlans.map((plan) => (
+                <motion.div
+                  key={plan.title}
+                  className={`rounded-3xl p-6 border ${
+                    plan.highlight
+                      ? "border-yellow-300/40 bg-yellow-400/10"
+                      : "border-blue-400/20 bg-slate-950/70"
+                  }`} 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="mb-4">
+                    <p className="text-sm uppercase tracking-[0.3em] text-blue-200 mb-1">{plan.title}</p>
+                    <h4 className="text-3xl font-black text-white">
+                      R$ {plan.price}
+                      <span className="text-base font-medium text-blue-300">/{plan.period}</span>
+                    </h4>
+                    <p className="text-blue-300 text-sm mt-2">{plan.description}</p>
+                  </div>
+                  <div className="space-y-2 mb-4 text-blue-100 text-sm">
+                    <p>Armazenamento: <span className="text-yellow-300">{plan.storage}</span></p>
+                    <p>Limite de aulas: <span className="text-yellow-300">{plan.classes}</span></p>
+                  </div>
+                  <div className="space-y-2 mb-6">
+                    {plan.features.map((feature) => (
+                      <div key={feature} className="flex items-center gap-2 text-blue-100 text-sm">
+                        <span className="text-yellow-400">•</span>
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <motion.a
+                    href="/register"
+                    className="block text-center bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-5 py-3 rounded-full"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    Escolher plano
+                  </motion.a>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
 
           {/* Filters */}

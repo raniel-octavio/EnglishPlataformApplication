@@ -15,6 +15,66 @@ export default function Register() {
     acceptTerms: false,
   });
   const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("Gratuito");
+
+  const teacherPlans = [
+    {
+      title: "Gratuito",
+      price: "0",
+      period: "mês",
+      storage: "1GB",
+      classes: "10 aulas",
+      description: "Plano inicial para professores começarem a publicar suas aulas.",
+      features: [
+        "Até 20 alunos ativos",
+        "Perfil público de professor",
+        "Acesso ao painel básico",
+        "Sem cobrança adicional",
+      ],
+    },
+    {
+      title: "Starter",
+      price: "29",
+      period: "mês",
+      storage: "5GB",
+      classes: "25 aulas",
+      description: "Mais aulas mensais e visibilidade no site.",
+      features: [
+        "Até 50 alunos ativos",
+        "Perfil em destaque",
+        "Relatórios de aulas mensais",
+        "Suporte prioritário básico",
+      ],
+    },
+    {
+      title: "Profissional",
+      price: "69",
+      period: "mês",
+      storage: "15GB",
+      classes: "60 aulas",
+      description: "Para professores com agenda cheia e maior alcance.",
+      features: [
+        "Uploads ilimitados de materiais",
+        "Agenda flexível e notificações",
+        "Estatísticas avançadas",
+        "Suporte prioritário",
+      ],
+    },
+    {
+      title: "Premium",
+      price: "129",
+      period: "mês",
+      storage: "50GB",
+      classes: "Aulas ilimitadas",
+      description: "Plano completo para professores com alta demanda.",
+      features: [
+        "Suporte dedicado",
+        "Conteúdo de vídeo e arquivos grandes",
+        "Consultoria para crescimento",
+        "Prioridade total no painel",
+      ],
+    },
+  ];
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -143,6 +203,42 @@ export default function Register() {
                   <motion.p className="text-blue-200 mb-8" variants={itemVariants}>
                     Primeira aula grátis, sem cartão de crédito
                   </motion.p>
+
+                  <div className="mb-6 rounded-3xl border border-yellow-400/20 bg-slate-900/80 p-6">
+                    <h3 className="text-white font-bold text-2xl mb-4">Escolha seu plano de professor</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {teacherPlans.map((plan) => (
+                        <button
+                          key={plan.title}
+                          type="button"
+                          onClick={() => setSelectedPlan(plan.title)}
+                          className={`rounded-2xl border p-4 text-left transition-all ${
+                            selectedPlan === plan.title
+                              ? "border-yellow-400 bg-yellow-400/10"
+                              : "border-blue-400/20 bg-slate-950/80 hover:border-yellow-400"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-sm uppercase tracking-[0.25em] text-blue-200">{plan.title}</p>
+                            <span className="text-yellow-300 text-sm">{plan.classes}</span>
+                          </div>
+                          <h4 className="text-2xl font-black text-white mb-2">
+                            R$ {plan.price}
+                            <span className="text-base font-medium text-blue-300">/{plan.period}</span>
+                          </h4>
+                          <p className="text-blue-300 text-sm mb-3">{plan.description}</p>
+                          <div className="space-y-1 text-blue-100 text-xs">
+                            {plan.features.map((feature) => (
+                              <p key={feature}>• {feature}</p>
+                            ))}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-4 text-blue-200 text-sm">
+                      Plano selecionado: <span className="text-yellow-300">{selectedPlan}</span>
+                    </p>
+                  </div>
 
                   <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Full Name */}
