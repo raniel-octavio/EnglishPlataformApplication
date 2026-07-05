@@ -17,9 +17,11 @@ export default function Platform() {
   const socketRef = useRef(null);
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
+  const screenStreamRef = useRef(null);
   const [localStream, setLocalStream] = useState(null);
   const [isMicEnabled, setIsMicEnabled] = useState(true);
   const [isCameraEnabled, setIsCameraEnabled] = useState(true);
+  const [isSharingScreen, setIsSharingScreen] = useState(false);
   const [meetingError, setMeetingError] = useState("");
   const [remoteConnected, setRemoteConnected] = useState(false);
   const [otherUserId, setOtherUserId] = useState(null);
@@ -59,6 +61,11 @@ export default function Platform() {
       socketRef.current = null;
     }
     stopLocalStream();
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach((t) => t.stop());
+      screenStreamRef.current = null;
+    }
+    setIsSharingScreen(false);
     setRemoteConnected(false);
     setOtherUserId(null);
   };
@@ -92,6 +99,68 @@ export default function Platform() {
 
     pcRef.current = pc;
     return pc;
+  };
+
+  const startScreenShare = async () => {
+    if (!navigator.mediaDevices?.getDisplayMedia) return;
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      screenStreamRef.current = screenStream;
+      setIsSharingScreen(true);
+
+      // show screen locally in the local video element
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = screenStream;
+        localVideoRef.current.play().catch(() => {});
+      }
+
+      // replace outgoing video track if peer connection exists
+      const pc = pcRef.current;
+      const screenTrack = screenStream.getVideoTracks()[0];
+      if (pc && screenTrack) {
+        const sender = pc.getSenders().find((s) => s.track && s.track.kind === "video");
+        if (sender) {
+          await sender.replaceTrack(screenTrack);
+        }
+      }
+
+      // stop sharing when the user stops the screen share from browser UI
+      screenTrack.onended = () => {
+        stopScreenShare();
+      };
+    } catch (err) {
+      console.error("Erro ao iniciar compartilhamento de tela:", err);
+    }
+  };
+
+  const stopScreenShare = async () => {
+    const screenStream = screenStreamRef.current;
+    if (screenStream) {
+      screenStream.getTracks().forEach((t) => t.stop());
+      screenStreamRef.current = null;
+    }
+    setIsSharingScreen(false);
+
+    // restore camera stream locally
+    const camStream = localStreamRef.current;
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = camStream;
+      if (camStream) localVideoRef.current.play().catch(() => {});
+    }
+
+    // replace outgoing video track with camera if pc exists
+    const pc = pcRef.current;
+    if (pc && camStream) {
+      const camTrack = camStream.getVideoTracks()[0];
+      const sender = pc.getSenders().find((s) => s.track && s.track.kind === "video");
+      if (sender && camTrack) {
+        try {
+          await sender.replaceTrack(camTrack);
+        } catch (err) {
+          console.warn("Não foi possível restaurar track de câmera:", err);
+        }
+      }
+    }
   };
 
   const handleReceiveOffer = async ({ sdp, caller }) => {
@@ -437,6 +506,17 @@ export default function Platform() {
                             whileTap={{ scale: 0.9 }}
                           >
                             {isCameraEnabled ? "📹" : "🚫📹"}
+                          </motion.button>
+                          <motion.button
+                            onClick={() => {
+                              if (isSharingScreen) stopScreenShare();
+                              else startScreenShare();
+                            }}
+                            className={`p-4 rounded-full ${isSharingScreen ? "bg-green-500 hover:bg-green-600" : "bg-gray-700 hover:bg-gray-600"} text-white`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {isSharingScreen ? "🛑 Tela" : "🖥️ Compartilhar"}
                           </motion.button>
                           <motion.button
                             onClick={() => {
