@@ -167,6 +167,7 @@ export default function Platform() {
 
       await initSocket();
       setInMeeting(true);
+      setActiveTab("reunion");
     } catch (error) {
       console.error("Erro ao acessar câmera/microfone:", error);
       setMeetingError("Não foi possível acessar câmera e microfone. Verifique as permissões do navegador.");
@@ -330,14 +331,24 @@ export default function Platform() {
                               </div>
                             </div>
                             {cls.status === "próxima" && (
-                              <motion.button
-                                onClick={handleStartMeeting}
-                                className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-8 py-3 rounded-lg ml-4"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                Entrar →
-                              </motion.button>
+                              <div className="flex items-center gap-3 ml-4">
+                                <motion.button
+                                  onClick={handleStartMeeting}
+                                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-6 py-3 rounded-lg"
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                >
+                                  Entrar
+                                </motion.button>
+                                <motion.button
+                                  onClick={handleStartMeeting}
+                                  className="bg-slate-800 border border-blue-400/30 text-blue-100 font-bold px-6 py-3 rounded-lg"
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                >
+                                  Teste
+                                </motion.button>
+                              </div>
                             )}
                           </div>
                         </motion.div>
