@@ -130,8 +130,9 @@ export default function Platform() {
   const initSocket = async () => {
     if (socketRef.current) return;
     const { io } = await import("socket.io-client");
-    const socket = io(window.location.origin, {
-      path: "/api/socket",
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || window.location.origin;
+    const socket = io(socketUrl, {
+      path: process.env.NEXT_PUBLIC_SOCKET_URL ? "/" : "/api/socket",
     });
 
     socket.on("connect", () => {
