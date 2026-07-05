@@ -63,7 +63,7 @@ export default function Home() {
                 transition={{ delay: 0.5 }}
               >
                 <motion.a
-                  href="/register"
+                  href="/classes"
                   className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-8 py-4 rounded-full hover:shadow-xl transition-all inline-flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(250, 204, 21, 0.4)" }}
                   whileTap={{ scale: 0.95 }}

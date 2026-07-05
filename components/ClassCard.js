@@ -7,9 +7,12 @@ export default function ClassCard({ title, teacher, level, price }) {
         <p><strong>Nível:</strong> <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">{level}</span></p>
         <p><strong>Preço:</strong> <span className="text-green-600 font-bold">{price}</span></p>
       </div>
-      <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+      <a
+        href="/inscricao?type=course"
+        className="block w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition text-center"
+      >
         Agendar Aula
-      </button>
+      </a>
     </div>
   );
 }

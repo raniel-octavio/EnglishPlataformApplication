@@ -246,7 +246,7 @@ export default function Classes() {
                   <div className="border-t border-blue-400/20 pt-4 flex items-center justify-between">
                     <span className="text-green-400 font-bold text-lg">{cls.price}</span>
                     <motion.a
-                      href="/register"
+                      href={`/inscricao?type=course&title=${encodeURIComponent(cls.title)}&teacher=${encodeURIComponent(cls.teacher)}&price=${encodeURIComponent(cls.price)}`}
                       className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-6 py-2 rounded-lg hover:shadow-lg transition-all"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}

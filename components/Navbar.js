@@ -30,19 +30,22 @@ export default function Navbar() {
           <Link href="/teachers" className="text-blue-100 hover:text-white transition">
             Professores
           </Link>
-          <Link href="#" className="text-blue-100 hover:text-white transition">
-            App
+          <Link href="/teacher-plans" className="text-blue-100 hover:text-white transition">
+            Planos
           </Link>
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="hidden md:inline text-blue-100 hover:text-white transition">
-            Login
+        <div className="hidden sm:flex items-center gap-3">
+          <Link href="/login" className="text-blue-100 hover:text-white transition">
+            Aluno
+          </Link>
+          <Link href="/teacher-login" className="text-blue-100 hover:text-white transition">
+            Professor
           </Link>
           <motion.a
-            href="/register"
-            className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-6 py-2 rounded-full hover:shadow-lg transition-all"
+            href="/classes"
+            className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-5 py-2 rounded-full hover:shadow-lg transition-all"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -73,14 +76,20 @@ export default function Navbar() {
             <Link href="/classes" className="text-blue-100 hover:text-white">
               Cursos
             </Link>
-            <Link href="#" className="text-blue-100 hover:text-white">
-              Planos
-            </Link>
-            <Link href="#" className="text-blue-100 hover:text-white">
+            <Link href="/teachers" className="text-blue-100 hover:text-white">
               Professores
             </Link>
+            <Link href="/teacher-plans" className="text-blue-100 hover:text-white">
+              Planos
+            </Link>
             <Link href="/login" className="text-blue-100 hover:text-white">
-              Login
+              Aluno
+            </Link>
+            <Link href="/teacher-login" className="text-blue-100 hover:text-white">
+              Professor
+            </Link>
+            <Link href="/classes" className="text-yellow-300 font-bold">
+              Agendar Aula
             </Link>
           </div>
         </motion.div>

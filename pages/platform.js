@@ -200,8 +200,13 @@ export default function Platform() {
     if (socketRef.current) return;
     const { io } = await import("socket.io-client");
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || window.location.origin;
+    const socketPath = process.env.NEXT_PUBLIC_SOCKET_PATH || (process.env.NEXT_PUBLIC_SOCKET_URL ? "/socket.io" : "/api/socket");
     const socket = io(socketUrl, {
-      path: process.env.NEXT_PUBLIC_SOCKET_URL ? "/" : "/api/socket",
+      path: socketPath,
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     socket.on("connect", () => {
@@ -310,7 +315,7 @@ export default function Platform() {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
       <Navbar />
 
-      <main className="flex-grow pt-20 px-4 py-8">
+      <main className="flex-grow pt-24 px-3 sm:px-4 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <motion.div
@@ -319,7 +324,7 @@ export default function Platform() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl font-black text-white mb-2">
+            <h1 className="text-3xl sm:text-4xl font-black text-white mb-2">
               Sua Plataforma de
               <span className="block text-yellow-400">Aprendizado</span>
             </h1>
@@ -328,7 +333,7 @@ export default function Platform() {
 
           {/* Navigation Tabs */}
           <motion.div
-            className="flex gap-3 mb-8 overflow-x-auto pb-2"
+            className="flex gap-2 sm:gap-3 mb-6 sm:mb-8 overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -342,7 +347,7 @@ export default function Platform() {
               <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 rounded-lg font-bold whitespace-nowrap transition-all ${
+                className={`px-4 sm:px-6 py-3 rounded-lg font-bold whitespace-nowrap transition-all ${
                   activeTab === tab.id
                     ? "bg-yellow-400 text-slate-900 shadow-lg"
                     : "bg-slate-800/50 border border-blue-400/30 text-blue-100 hover:border-yellow-400"
@@ -356,7 +361,7 @@ export default function Platform() {
           </motion.div>
 
           {/* Content Area */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
             {/* Main Content */}
             <div className="lg:col-span-3">
               {/* Aulas Tab */}
@@ -367,7 +372,7 @@ export default function Platform() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-400/20 rounded-xl p-8">
+                  <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-400/20 rounded-xl p-4 sm:p-8">
                     <h2 className="text-2xl font-black text-white mb-6">Próximas Aulas</h2>
                     <motion.div
                       className="space-y-4"
@@ -382,7 +387,7 @@ export default function Platform() {
                           variants={cardVariants}
                           whileHover="hover"
                         >
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div className="flex-grow">
                               <h3 className="font-bold text-white text-lg mb-2">{cls.title}</h3>
                               <div className="flex items-center gap-4 text-blue-200 text-sm">
@@ -401,10 +406,10 @@ export default function Platform() {
                               </div>
                             </div>
                             {cls.status === "próxima" && (
-                              <div className="flex items-center gap-3 ml-4">
+                              <div className="flex flex-wrap items-center gap-3 sm:ml-4">
                                 <motion.button
                                   onClick={handleStartMeeting}
-                                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-6 py-3 rounded-lg"
+                                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-5 sm:px-6 py-3 rounded-lg"
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
                                 >
@@ -412,7 +417,7 @@ export default function Platform() {
                                 </motion.button>
                                 <motion.button
                                   onClick={handleStartMeeting}
-                                  className="bg-slate-800 border border-blue-400/30 text-blue-100 font-bold px-6 py-3 rounded-lg"
+                                  className="bg-slate-800 border border-blue-400/30 text-blue-100 font-bold px-5 sm:px-6 py-3 rounded-lg"
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
                                 >
@@ -437,8 +442,8 @@ export default function Platform() {
                   transition={{ duration: 0.5 }}
                 >
                   {!inMeeting ? (
-                    <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-400/20 rounded-xl p-8 text-center">
-                      <div className="text-8xl mb-6">🎥</div>
+                    <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-400/20 rounded-xl p-4 sm:p-8 text-center">
+                      <div className="text-6xl sm:text-8xl mb-6">🎥</div>
                       <h2 className="text-2xl font-bold text-white mb-4">Nenhuma aula em andamento</h2>
                       <p className="text-blue-200 mb-6">
                         Suas aulas agendadas aparecerão aqui. Clique em "Entrar" na aba de aulas para iniciar uma reunião.
@@ -474,7 +479,7 @@ export default function Platform() {
                         )}
                       </div>
 
-                        <div className="absolute bottom-4 right-4 w-32 h-28 bg-slate-900/70 rounded-lg border-2 border-white overflow-hidden">
+                        <div className="absolute bottom-20 right-3 sm:bottom-4 sm:right-4 w-24 h-20 sm:w-32 sm:h-28 bg-slate-900/70 rounded-lg border-2 border-white overflow-hidden">
                           <video
                             ref={localVideoRef}
                             autoPlay
@@ -490,10 +495,10 @@ export default function Platform() {
                           <p className="text-xs text-slate-300 mt-1">Stream: {localStream ? "ativo" : "não iniciado"}</p>
                         </div>
 
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6 flex justify-center gap-4">
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3 sm:p-6 flex flex-wrap justify-center gap-2 sm:gap-4">
                           <motion.button
                             onClick={toggleMic}
-                            className={`p-4 rounded-full ${isMicEnabled ? "bg-red-500 hover:bg-red-600" : "bg-gray-600 hover:bg-gray-700"} text-white`}
+                            className={`p-3 sm:p-4 rounded-full ${isMicEnabled ? "bg-red-500 hover:bg-red-600" : "bg-gray-600 hover:bg-gray-700"} text-white`}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                           >
@@ -501,7 +506,7 @@ export default function Platform() {
                           </motion.button>
                           <motion.button
                             onClick={toggleCamera}
-                            className={`p-4 rounded-full ${isCameraEnabled ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-600 hover:bg-gray-700"} text-white`}
+                            className={`p-3 sm:p-4 rounded-full ${isCameraEnabled ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-600 hover:bg-gray-700"} text-white`}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                           >
@@ -512,7 +517,7 @@ export default function Platform() {
                               if (isSharingScreen) stopScreenShare();
                               else startScreenShare();
                             }}
-                            className={`p-4 rounded-full ${isSharingScreen ? "bg-green-500 hover:bg-green-600" : "bg-gray-700 hover:bg-gray-600"} text-white`}
+                            className={`p-3 sm:p-4 rounded-full ${isSharingScreen ? "bg-green-500 hover:bg-green-600" : "bg-gray-700 hover:bg-gray-600"} text-white text-sm sm:text-base`}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
@@ -523,7 +528,7 @@ export default function Platform() {
                               stopLocalStream();
                               setInMeeting(false);
                             }}
-                            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-bold"
+                            className="bg-red-600 hover:bg-red-700 text-white px-5 sm:px-6 py-3 rounded-full font-bold"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
@@ -555,12 +560,12 @@ export default function Platform() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-400/20 rounded-xl p-8">
+                  <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-400/20 rounded-xl p-4 sm:p-8">
                     {/* Upload Area */}
                     <div className="mb-8">
                       <label className="block mb-4 text-white font-bold">Enviar Novo Arquivo</label>
                       <motion.label
-                        className="block border-2 border-dashed border-yellow-400/50 rounded-lg p-8 text-center cursor-pointer hover:border-yellow-400 transition-all"
+                        className="block border-2 border-dashed border-yellow-400/50 rounded-lg p-4 sm:p-8 text-center cursor-pointer hover:border-yellow-400 transition-all"
                         whileHover={{ scale: 1.02 }}
                       >
                         <div className="text-4xl mb-2">📤</div>
@@ -581,7 +586,7 @@ export default function Platform() {
                       {files.map((file) => (
                         <motion.div
                           key={file.id}
-                          className="bg-slate-800/50 border border-blue-400/20 rounded-lg p-4 flex items-center justify-between hover:border-yellow-400/40 transition-all"
+                          className="bg-slate-800/50 border border-blue-400/20 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:border-yellow-400/40 transition-all"
                           variants={cardVariants}
                           whileHover="hover"
                         >
@@ -592,7 +597,7 @@ export default function Platform() {
                               <p className="text-blue-300 text-sm">{file.size} • {file.date}</p>
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex flex-wrap gap-2">
                             <motion.button
                               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"
                               whileHover={{ scale: 1.05 }}
@@ -623,11 +628,11 @@ export default function Platform() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-400/20 rounded-xl p-8">
+                  <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-400/20 rounded-xl p-4 sm:p-8">
                     <h2 className="text-2xl font-bold text-white mb-6">Calendário de Aulas</h2>
                     
                     {/* Calendar Grid */}
-                    <div className="grid grid-cols-7 gap-2 mb-8">
+                    <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-8 text-xs sm:text-sm">
                       {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"].map((day) => (
                         <div key={day} className="text-center text-blue-300 font-bold py-2">
                           {day}
