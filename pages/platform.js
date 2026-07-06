@@ -71,7 +71,11 @@ export default function Platform() {
   };
 
   const createPeerConnection = (userId) => {
-  const pc = new RTCPeerConnection();
+  const pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" }
+    ]
+  });
 
   // Adicionar tracks locais (câmera/microfone)
   if (localStreamRef.current) {
@@ -249,26 +253,30 @@ export default function Platform() {
         throw new Error("Seu navegador não suporta câmera e microfone.");
       }
 
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        console.log("Local stream inicializado:", stream);
-      } catch (err) {
-        console.error("Erro ao acessar câmera/microfone:", err);
-      }
-
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
 
       localStreamRef.current = stream;
       setLocalStream(stream);
 
+      // cria a conexão já com as tracks
+      const pc = createPeerConnection();
+      pcRef.current = pc;
+
       await initSocket();
       setInMeeting(true);
       setActiveTab("reunion");
+
+      console.log("Local stream inicializado:", stream);
     } catch (error) {
       console.error("Erro ao acessar câmera/microfone:", error);
       setMeetingError("Não foi possível acessar câmera e microfone. Verifique as permissões do navegador.");
       setInMeeting(false);
     }
   };
+
 
   useEffect(() => {
     if (!localStream || !inMeeting) return;
