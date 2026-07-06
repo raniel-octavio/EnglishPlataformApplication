@@ -178,7 +178,7 @@ export default function Platform() {
     socket.on("connect", () => {
       console.log("✅ Conectado ao socket:", socket.id);
       socket.emit("join-room", roomId);
-      console.log("Entrando na sala:", roomId);
+      console.log("🚪 Entrando na sala:", roomId);
     });
 
     socket.on("other-user", (userId) => {
@@ -188,12 +188,12 @@ export default function Platform() {
     });
 
     socket.on("offer", (data) => {
-      console.log("📥 Offer recebida:", data.sdp?.type);
+      console.log("📥 Offer recebida:", data.sdp?.type, data);
       handleReceiveOffer(data);
     });
 
     socket.on("answer", (data) => {
-      console.log("📥 Answer recebida:", data.sdp?.type);
+      console.log("📥 Answer recebida:", data.sdp?.type, data);
       handleReceiveAnswer(data);
     });
 
@@ -231,6 +231,7 @@ export default function Platform() {
       setInMeeting(true);
       setActiveTab("reunion");
 
+      console.log("🚀 Reunião iniciada com sucesso");
     } catch (error) {
       console.error("❌ Erro ao acessar câmera/microfone:", error);
       setMeetingError("Não foi possível acessar câmera e microfone. Verifique as permissões do navegador.");
@@ -261,6 +262,7 @@ export default function Platform() {
         remoteVideoRef.current.srcObject = event.streams[0];
         remoteVideoRef.current.play().catch(() => {});
         setRemoteConnected(true); // <- marca que o remoto chegou
+        console.log("✅ Vídeo remoto exibido");
       }
     };
 
