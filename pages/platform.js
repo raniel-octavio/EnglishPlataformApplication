@@ -146,10 +146,17 @@ export default function Platform() {
 
     const answer = await pcRef.current.createAnswer();
     await pcRef.current.setLocalDescription(answer);
-    console.log("📤 Enviando answer:", answer.sdp);
+    console.log("📤 Enviando answer:", answer);
 
-    socketRef.current.emit("answer", { target: caller, sdp: answer });
+    socketRef.current.emit("answer", {
+      target: caller,
+      sdp: {
+        type: answer.type,
+        sdp: answer.sdp,
+      },
+    });
   };
+
 
   const handleReceiveAnswer = async ({ sdp }) => {
     console.log("📥 Answer recebida do socket:", sdp);
@@ -186,11 +193,15 @@ export default function Platform() {
     socketRef.current.emit("offer", {
       target: userId,
       caller: socketRef.current.id,
-      sdp: offer, // usar o objeto offer
+      sdp: {
+        type: offer.type,
+        sdp: offer.sdp,
+      },
     });
 
     console.log("📤 Offer enviada para:", userId);
   };
+
 
 
 

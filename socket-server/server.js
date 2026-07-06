@@ -44,6 +44,7 @@ io.on("connection", (socket) => {
   });
 
 
+
   socket.on("ice-candidate", ({ target, caller, candidate }) => {
     console.log(`❄️ ICE recebido de ${socket.id} para ${target}`);
     socket.to(target).emit("ice-candidate", { caller: socket.id, candidate });
