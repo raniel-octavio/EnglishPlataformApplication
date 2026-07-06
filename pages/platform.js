@@ -77,11 +77,13 @@ export default function Platform() {
   if (localStreamRef.current) {
     localStreamRef.current.getTracks().forEach(track => {
       pc.addTrack(track, localStreamRef.current);
+      console.log("Track adicionada:", track.kind);
     });
   }
 
   // Receber tracks remotas
   pc.ontrack = (event) => {
+    console.log("Track recebida:", event.streams[0]);
     if (remoteVideoRef.current) {
     remoteVideoRef.current.srcObject = event.streams[0];
     remoteVideoRef.current.play().catch(() => {});
