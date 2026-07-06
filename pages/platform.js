@@ -70,44 +70,6 @@ export default function Platform() {
     setOtherUserId(null);
   };
 
-  const createPeerConnection = (userId) => {
-  const pc = new RTCPeerConnection({
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" }
-    ]
-  });
-
-  // Adicionar tracks locais (câmera/microfone)
-  if (localStreamRef.current) {
-    localStreamRef.current.getTracks().forEach(track => {
-      pc.addTrack(track, localStreamRef.current);
-      console.log("Track adicionada:", track.kind);
-    });
-  }
-
-  // Receber tracks remotas
-  pc.ontrack = (event) => {
-    console.log("Track recebida:", event.streams[0]);
-    if (remoteVideoRef.current) {
-    remoteVideoRef.current.srcObject = event.streams[0];
-    remoteVideoRef.current.play().catch(() => {});
-    setRemoteConnected(true); // <- marca que o remoto chegou
-    }
-  };
-
-  // Enviar candidatos ICE para o outro peer
-  pc.onicecandidate = (event) => {
-    if (event.candidate && socketRef.current) {
-      socketRef.current.emit("ice-candidate", {
-        target: userId,
-        candidate: event.candidate,
-      });
-    }
-  };
-
-    pcRef.current = pc;
-    return pc;
-  };
 
 
 
@@ -243,9 +205,6 @@ export default function Platform() {
     socketRef.current = socket;
   };
 
-
-
-
   const handleStartMeeting = async () => {
     setMeetingError("");
     try {
@@ -269,7 +228,7 @@ export default function Platform() {
       setInMeeting(true);
       setActiveTab("reunion");
 
-      console.log("Local stream inicializado:", stream);
+      console.log("Local stream inicializado:", localStreamRef.current);
     } catch (error) {
       console.error("Erro ao acessar câmera/microfone:", error);
       setMeetingError("Não foi possível acessar câmera e microfone. Verifique as permissões do navegador.");
@@ -277,7 +236,46 @@ export default function Platform() {
     }
   };
 
+  const createPeerConnection = (userId) => {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" }
+      ]
+    });
 
+    // Adicionar tracks locais (câmera/microfone)
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(track => {
+        pc.addTrack(track, localStreamRef.current);
+        console.log("Track adicionada:", track.kind);
+      });
+    }
+
+    // Receber tracks remotas
+    pc.ontrack = (event) => {
+      console.log("Track recebida:", event.streams[0]);
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = event.streams[0];
+        remoteVideoRef.current.play().catch(() => {});
+        setRemoteConnected(true); // <- marca que o remoto chegou
+      }
+    };
+
+    // Enviar candidatos ICE para o outro peer
+    pc.onicecandidate = (event) => {
+      if (event.candidate && socketRef.current) {
+        socketRef.current.emit("ice-candidate", {
+          target: userId,
+          candidate: event.candidate,
+        });
+      }
+    };
+
+    pcRef.current = pc;
+    return pc;
+  };
+
+  // Exibir vídeo local quando stream mudar
   useEffect(() => {
     if (!localStream || !inMeeting) return;
     const videoEl = localVideoRef.current;
@@ -290,11 +288,13 @@ export default function Platform() {
     videoEl.play().catch(() => {});
   }, [localStream, inMeeting]);
 
+  // Cleanup ao desmontar
   useEffect(() => {
     return () => {
       cleanUpMeeting();
     };
   }, []);
+
 
   const upcomingClasses = [
     { id: 1, title: "Business English", teacher: "Sarah Johnson", date: "2026-07-05", time: "18:00", status: "próxima" },
