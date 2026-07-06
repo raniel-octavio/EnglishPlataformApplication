@@ -1,7 +1,12 @@
 import http from "http";
 import { Server } from "socket.io";
 
-const server = http.createServer();
+const server = http.createServer((req, res) => {
+  // rota simples para teste
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Socket server is running");
+});
+
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -10,11 +15,12 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
+  console.log("Cliente conectado:", socket.id);
+
   socket.on("join-room", (roomId) => {
     socket.join(roomId);
-    const otherSockets = Array.from(io.sockets.adapter.rooms.get(roomId) || []).filter(
-      (id) => id !== socket.id
-    );
+    const otherSockets = Array.from(io.sockets.adapter.rooms.get(roomId) || [])
+      .filter((id) => id !== socket.id);
 
     if (otherSockets.length > 0) {
       socket.emit("other-user", otherSockets[0]);
@@ -35,7 +41,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    // limpeza automática pelo socket.io
+    console.log("Cliente saiu:", socket.id);
   });
 });
 
