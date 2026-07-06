@@ -2,5 +2,14 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/classes": "pages/classes.js",
+  "/teachers": "pages/teachers.js",
+  "/teacher-plans": "pages/teacher-plans.js",
+  "/login": "pages/login.js",
+  "/platform": "pages/platform.js",
+  "/become-teacher": "pages/become-teacher.js",
+  "/teacher-login": "pages/teacher-login.js",
+  "/teacher-platform": "pages/teacher-platform.js",
+  "/create-course": "pages/create-course.js",
   "/": "pages/index.js"
 }

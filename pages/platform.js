@@ -26,6 +26,7 @@ export default function Platform() {
   const [remoteConnected, setRemoteConnected] = useState(false);
   const [otherUserId, setOtherUserId] = useState(null);
   const roomId = "english-class-room";
+  const otherUserIdRef = useRef(null);
 
   const stopLocalStream = () => {
     localStream?.getTracks().forEach((track) => track.stop());
@@ -68,6 +69,7 @@ export default function Platform() {
     setIsSharingScreen(false);
     setRemoteConnected(false);
     setOtherUserId(null);
+    otherUserIdRef.current = null;
   };
 
 
@@ -137,10 +139,38 @@ export default function Platform() {
 
   const handleReceiveOffer = async ({ sdp, caller }) => {
     console.log("📥 Offer recebida do socket:", sdp);
+    
+    // Atualiza o otherUserIdRef para ICE candidate
+    otherUserIdRef.current = caller;
+    
+    // Garante que a conexão existe
     if (!pcRef.current) {
       console.log("⚠️ Nenhum PeerConnection ativo, criando...");
       pcRef.current = createPeerConnection(caller);
+    } else {
+      // Garante que as tracks foram adicionadas à conexão existente
+      if (localStreamRef.current) {
+        const senders = pcRef.current.getSenders();
+        const hasVideo = senders.some(s => s.track && s.track.kind === "video");
+        const hasAudio = senders.some(s => s.track && s.track.kind === "audio");
+        
+        if (!hasVideo || !hasAudio) {
+          localStreamRef.current.getTracks().forEach(track => {
+            if ((track.kind === "video" && !hasVideo) || (track.kind === "audio" && !hasAudio)) {
+              pcRef.current.addTrack(track, localStreamRef.current);
+              console.log("➕ Track adicionada (handleReceiveOffer):", track.kind);
+            }
+          });
+        }
+      }
     }
+    
+    // Só aplica se o signaling state estiver stable (não tem remote ainda)
+    if (pcRef.current.signalingState !== "stable") {
+      console.log("ℹ️ Offer ignorada, signaling state:", pcRef.current.signalingState);
+      return;
+    }
+    
     await pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
     console.log("✅ Offer aplicada no PeerConnection");
 
@@ -150,6 +180,7 @@ export default function Platform() {
 
     socketRef.current.emit("answer", {
       target: caller,
+      caller: socketRef.current.id,
       sdp: {
         type: answer.type,
         sdp: answer.sdp,
@@ -158,12 +189,25 @@ export default function Platform() {
   };
 
 
-  const handleReceiveAnswer = async ({ sdp }) => {
+  const handleReceiveAnswer = async ({ sdp, caller }) => {
     console.log("📥 Answer recebida do socket:", sdp);
+    
+    // Atualiza o otherUserIdRef se caller foi fornecido
+    if (caller) {
+      otherUserIdRef.current = caller;
+    }
+    
     if (!pcRef.current) {
       console.log("⚠️ Nenhum PeerConnection ativo ao receber answer");
       return;
     }
+    
+    // Só aplica se o signaling state indicar que podemos aplicar
+    if (pcRef.current.signalingState !== "have-local-offer") {
+      console.log("ℹ️ Answer ignorada, signaling state:", pcRef.current.signalingState);
+      return;
+    }
+    
     await pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
     console.log("✅ Answer aplicada no PeerConnection");
   };
@@ -181,17 +225,36 @@ export default function Platform() {
 
 
   const callUser = async (userId) => {
-    if (!socketRef.current || !localStream) return;
+    if (!socketRef.current || !localStreamRef.current) {
+      console.log("⚠️ callUser: socket ou stream não prontos");
+      return;
+    }
     console.log("📤 Iniciando chamada para:", userId);
 
-    const pc = createPeerConnection(userId);
+    // Usa o userId do ref (mais confiável) ou do parâmetro
+    const targetUserId = otherUserIdRef.current || userId;
+    
+    // Reutiliza a conexão existente ou cria nova
+    let pc = pcRef.current;
+    if (!pc) {
+      console.log("🔗 Criando nova PeerConnection em callUser");
+      pc = createPeerConnection(targetUserId);
+      pcRef.current = pc;
+    }
+    
+    // Só cria offer se o signaling state estiver stable
+    if (pc.signalingState !== "stable") {
+      console.log("ℹ️ Offer já criada ou em andamento, signaling state:", pc.signalingState);
+      return;
+    }
+    
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
     console.log("📤 Offer criada:", offer);
 
     socketRef.current.emit("offer", {
-      target: userId,
+      target: targetUserId,
       caller: socketRef.current.id,
       sdp: {
         type: offer.type,
@@ -199,7 +262,7 @@ export default function Platform() {
       },
     });
 
-    console.log("📤 Offer enviada para:", userId);
+    console.log("📤 Offer enviada para:", targetUserId);
   };
 
 
@@ -210,7 +273,11 @@ export default function Platform() {
     const { io } = await import("socket.io-client");
 
     const socketUrl = "https://englishplataformapplication.onrender.com";
-    const socket = io(socketUrl, { transports: ["websocket", "polling"] });
+    const socket = io(socketUrl, { 
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+    });
 
     socket.on("connect", () => {
       console.log("✅ Conectado ao socket:", socket.id);
@@ -221,7 +288,14 @@ export default function Platform() {
     socket.on("other-user", (userId) => {
       console.log("👤 Outro usuário detectado:", userId);
       setOtherUserId(userId);
-      callUser(userId);
+      otherUserIdRef.current = userId;
+      
+      // Só chama se já tiver o stream local
+      if (localStreamRef.current) {
+        callUser(userId);
+      } else {
+        console.log("⏳ Aguardando stream local para fazer a chamada...");
+      }
     });
 
     socket.on("offer", (data) => {
@@ -260,11 +334,24 @@ export default function Platform() {
 
       console.log("🎥 Local stream inicializado:", localStreamRef.current);
 
-      // cria a conexão já com as tracks
-      const pc = createPeerConnection();
-      pcRef.current = pc;
-
+      // Primeiro conecta o socket, depois cria a conexão
       await initSocket();
+      
+      // Aguarda um pouco para garantir que o socket está conectado
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Cria a conexão peer-to-peer apenas se não existir
+      if (!pcRef.current) {
+        const pc = createPeerConnection();
+        pcRef.current = pc;
+      }
+
+      // Se já houver outro usuário na sala, inicia a chamada
+      if (otherUserIdRef.current) {
+        console.log("📞 Usuário já na sala, iniciando chamada...");
+        callUser(otherUserIdRef.current);
+      }
+
       setInMeeting(true);
       setActiveTab("reunion");
 
@@ -277,7 +364,28 @@ export default function Platform() {
   };
 
   const createPeerConnection = (userId) => {
-    console.log("🔗 Criando PeerConnection...");
+    // Se já existe uma conexão, reutiliza
+    if (pcRef.current) {
+      console.log("♻️ Reutilizando PeerConnection existente");
+      // Garante que as tracks foram adicionadas
+      if (localStreamRef.current) {
+        const senders = pcRef.current.getSenders();
+        const hasVideo = senders.some(s => s.track && s.track.kind === "video");
+        const hasAudio = senders.some(s => s.track && s.track.kind === "audio");
+        
+        if (!hasVideo || !hasAudio) {
+          localStreamRef.current.getTracks().forEach(track => {
+            if ((track.kind === "video" && !hasVideo) || (track.kind === "audio" && !hasAudio)) {
+              pcRef.current.addTrack(track, localStreamRef.current);
+              console.log("➕ Track adicionada (reutilizando):", track.kind);
+            }
+          });
+        }
+      }
+      return pcRef.current;
+    }
+    
+    console.log("🔗 Criando nova PeerConnection...");
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" }
@@ -306,9 +414,15 @@ export default function Platform() {
     // Enviar candidatos ICE para o outro peer
     pc.onicecandidate = (event) => {
       if (event.candidate && socketRef.current) {
+        // Usa o userId do parâmetro ou do ref
+        const targetId = userId || otherUserIdRef.current;
+        if (!targetId) {
+          console.log("⚠️ ICE candidate sem target válido");
+          return;
+        }
         console.log("❄️ ICE gerado:", event.candidate);
         socketRef.current.emit("ice-candidate", {
-          target: userId,
+          target: targetId,
           candidate: event.candidate,
         });
       }
