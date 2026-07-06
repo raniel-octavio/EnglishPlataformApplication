@@ -33,15 +33,16 @@ io.on("connection", (socket) => {
 
   socket.on("offer", ({ target, caller, sdp }) => {
     console.log(`📤 Offer recebida de ${socket.id} para ${target}`);
-    socket.to(target).emit("offer", { caller: socket.id, sdp });
+    socket.to(target).emit("offer", { caller, sdp });
     console.log(`➡️ Offer repassada para ${target}`);
   });
 
   socket.on("answer", ({ target, caller, sdp }) => {
     console.log(`📤 Answer recebida de ${socket.id} para ${target}`);
-    socket.to(target).emit("answer", { caller: socket.id, sdp });
+    socket.to(target).emit("answer", { caller, sdp });
     console.log(`➡️ Answer repassada para ${target}`);
   });
+
 
   socket.on("ice-candidate", ({ target, caller, candidate }) => {
     console.log(`❄️ ICE recebido de ${socket.id} para ${target}`);

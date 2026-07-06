@@ -181,16 +181,17 @@ export default function Platform() {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
-    console.log("📤 Offer criada:", offer.sdp);
+    console.log("📤 Offer criada:", offer);
 
     socketRef.current.emit("offer", {
       target: userId,
       caller: socketRef.current.id,
-      sdp: pc.localDescription,
+      sdp: offer, // usar o objeto offer
     });
 
     console.log("📤 Offer enviada para:", userId);
   };
+
 
 
   const initSocket = async () => {
