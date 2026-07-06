@@ -182,23 +182,23 @@ export default function Platform() {
     });
 
     socket.on("other-user", (userId) => {
-      console.log("Outro usuário detectado:", userId);
+      console.log("👤 Outro usuário detectado:", userId);
       setOtherUserId(userId);
       callUser(userId);
     });
 
     socket.on("offer", (data) => {
-      console.log("Recebi offer:", data);
+      console.log("📥 Offer recebida:", data.sdp?.type);
       handleReceiveOffer(data);
     });
 
     socket.on("answer", (data) => {
-      console.log("Recebi answer:", data);
+      console.log("📥 Answer recebida:", data.sdp?.type);
       handleReceiveAnswer(data);
     });
 
     socket.on("ice-candidate", (data) => {
-      console.log("Recebi ICE:", data);
+      console.log("❄️ ICE recebido:", data.candidate);
       handleReceiveIce(data);
     });
 
@@ -212,6 +212,7 @@ export default function Platform() {
         throw new Error("Seu navegador não suporta câmera e microfone.");
       }
 
+      console.log("🎥 Chamando getUserMedia...");
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
@@ -219,6 +220,8 @@ export default function Platform() {
 
       localStreamRef.current = stream;
       setLocalStream(stream);
+
+      console.log("🎥 Local stream inicializado:", localStreamRef.current);
 
       // cria a conexão já com as tracks
       const pc = createPeerConnection();
@@ -228,15 +231,15 @@ export default function Platform() {
       setInMeeting(true);
       setActiveTab("reunion");
 
-      console.log("Local stream inicializado:", localStreamRef.current);
     } catch (error) {
-      console.error("Erro ao acessar câmera/microfone:", error);
+      console.error("❌ Erro ao acessar câmera/microfone:", error);
       setMeetingError("Não foi possível acessar câmera e microfone. Verifique as permissões do navegador.");
       setInMeeting(false);
     }
   };
 
   const createPeerConnection = (userId) => {
+    console.log("🔗 Criando PeerConnection...");
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" }
@@ -247,13 +250,13 @@ export default function Platform() {
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(track => {
         pc.addTrack(track, localStreamRef.current);
-        console.log("Track adicionada:", track.kind);
+        console.log("➕ Track adicionada:", track.kind);
       });
     }
 
     // Receber tracks remotas
     pc.ontrack = (event) => {
-      console.log("Track recebida:", event.streams[0]);
+      console.log("📺 Track recebida:", event.streams[0]);
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
         remoteVideoRef.current.play().catch(() => {});
@@ -264,6 +267,7 @@ export default function Platform() {
     // Enviar candidatos ICE para o outro peer
     pc.onicecandidate = (event) => {
       if (event.candidate && socketRef.current) {
+        console.log("❄️ ICE gerado:", event.candidate);
         socketRef.current.emit("ice-candidate", {
           target: userId,
           candidate: event.candidate,
@@ -281,6 +285,7 @@ export default function Platform() {
     const videoEl = localVideoRef.current;
     if (!videoEl) return;
 
+    console.log("📺 Exibindo vídeo local...");
     videoEl.muted = true;
     videoEl.autoplay = true;
     videoEl.playsInline = true;
@@ -291,9 +296,11 @@ export default function Platform() {
   // Cleanup ao desmontar
   useEffect(() => {
     return () => {
+      console.log("🧹 Limpando reunião...");
       cleanUpMeeting();
     };
   }, []);
+
 
 
   const upcomingClasses = [
