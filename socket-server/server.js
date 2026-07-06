@@ -31,24 +31,24 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("offer", ({ target, sdp }) => {
+  socket.on("offer", ({ target, caller, sdp }) => {
     console.log(`📤 Offer recebida de ${socket.id} para ${target}`);
     socket.to(target).emit("offer", { caller: socket.id, sdp });
     console.log(`➡️ Offer repassada para ${target}`);
   });
 
-  socket.on("answer", ({ target, sdp }) => {
+  socket.on("answer", ({ target, caller, sdp }) => {
     console.log(`📤 Answer recebida de ${socket.id} para ${target}`);
     socket.to(target).emit("answer", { caller: socket.id, sdp });
     console.log(`➡️ Answer repassada para ${target}`);
   });
 
-  socket.on("ice-candidate", ({ target, candidate }) => {
+  socket.on("ice-candidate", ({ target, caller, candidate }) => {
     console.log(`❄️ ICE recebido de ${socket.id} para ${target}`);
     socket.to(target).emit("ice-candidate", { caller: socket.id, candidate });
     console.log(`➡️ ICE repassado para ${target}`);
   });
-
+  
   socket.on("disconnect", () => {
     console.log("❌ Cliente saiu:", socket.id);
   });
