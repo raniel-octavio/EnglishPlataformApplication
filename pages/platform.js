@@ -70,36 +70,39 @@ export default function Platform() {
     setOtherUserId(null);
   };
 
-  const createPeerConnection = (targetId) => {
-    const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  const createPeerConnection = (userId) => {
+  const pc = new RTCPeerConnection();
+
+  // Adicionar tracks locais (câmera/microfone)
+  if (localStreamRef.current) {
+    localStreamRef.current.getTracks().forEach(track => {
+      pc.addTrack(track, localStreamRef.current);
     });
+  }
 
-    pc.onicecandidate = ({ candidate }) => {
-      if (candidate && socketRef.current && targetId) {
-        socketRef.current.emit("ice-candidate", {
-          target: targetId,
-          candidate,
-        });
-      }
-    };
-
-    pc.ontrack = (event) => {
-      const [stream] = event.streams;
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = stream;
-      }
-      setRemoteConnected(true);
-    };
-
-    const stream = localStreamRef.current;
-    if (stream) {
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+  // Receber tracks remotas
+  pc.ontrack = (event) => {
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = event.streams[0];
+      remoteVideoRef.current.play().catch(() => {});
     }
+  };
+
+  // Enviar candidatos ICE para o outro peer
+  pc.onicecandidate = (event) => {
+    if (event.candidate && socketRef.current) {
+      socketRef.current.emit("ice-candidate", {
+        target: userId,
+        candidate: event.candidate,
+      });
+    }
+  };
 
     pcRef.current = pc;
     return pc;
   };
+
+
 
   const startScreenShare = async () => {
     if (!navigator.mediaDevices?.getDisplayMedia) return;
