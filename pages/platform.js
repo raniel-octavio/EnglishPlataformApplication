@@ -175,14 +175,23 @@ export default function Platform() {
 
   const callUser = async (userId) => {
     if (!socketRef.current || !localStream) return;
+    console.log("📤 Iniciando chamada para:", userId);
+
     const pc = createPeerConnection(userId);
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
+
+    console.log("📤 Offer criada:", offer.sdp);
+
     socketRef.current.emit("offer", {
       target: userId,
+      caller: socketRef.current.id,
       sdp: pc.localDescription,
     });
+
+    console.log("📤 Offer enviada para:", userId);
   };
+
 
   const initSocket = async () => {
     if (socketRef.current) return;
