@@ -201,41 +201,43 @@ export default function Platform() {
   };
 
   const initSocket = async () => {
-  if (socketRef.current) return;
-  const { io } = await import("socket.io-client");
+    if (socketRef.current) return;
+    const { io } = await import("socket.io-client");
 
-  // usar o link direto do Render
-  const socketUrl = "https://englishplataformapplication.onrender.com";
-  const socketPath = "/socket.io"; // padrão do socket.io
+    // usar o link direto do Render
+    const socketUrl = "https://englishplataformapplication.onrender.com";
+    const socketPath = "/socket.io"; // padrão do socket.io
 
-  const socket = io(socketUrl, {
-    path: socketPath,
-    transports: ["websocket", "polling"],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-  });
+    const socket = io(socketUrl, {
+      path: socketPath,
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
 
-  socket.on("connect", () => {
-    console.log("✅ Conectado ao socket:", socket.id);
-    socket.emit("join-room", roomId);
-  });
+    socket.on("connect", () => {
+      console.log("✅ Conectado ao socket:", socket.id);
+      socket.emit("join-room", roomId);
+      console.log("Entrando na sala:", roomId);
+    });
 
-  socket.on("connect_error", (err) => {
-    console.error("❌ Erro de conexão:", err.message);
-  });
+    socket.on("connect_error", (err) => {
+      console.error("❌ Erro de conexão:", err.message);
+    });
 
-  socket.on("other-user", (userId) => {
-    setOtherUserId(userId);
-    callUser(userId);
-  });
+    socket.on("other-user", (userId) => {
+      console.log("Outro usuário detectado:", userId);
+      setOtherUserId(userId);
+      callUser(userId);
+    });
 
-  socket.on("offer", handleReceiveOffer);
-  socket.on("answer", handleReceiveAnswer);
-  socket.on("ice-candidate", handleReceiveIce);
+    socket.on("offer", handleReceiveOffer);
+    socket.on("answer", handleReceiveAnswer);
+    socket.on("ice-candidate", handleReceiveIce);
 
-  socketRef.current = socket;
-};
+    socketRef.current = socket;
+  };
 
 
 

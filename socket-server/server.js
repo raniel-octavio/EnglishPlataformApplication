@@ -18,25 +18,30 @@ io.on("connection", (socket) => {
   console.log("Cliente conectado:", socket.id);
 
   socket.on("join-room", (roomId) => {
+    console.log(`Socket ${socket.id} entrou na sala ${roomId}`);
     socket.join(roomId);
     const otherSockets = Array.from(io.sockets.adapter.rooms.get(roomId) || [])
       .filter((id) => id !== socket.id);
 
     if (otherSockets.length > 0) {
+      console.log(`Notificando ${socket.id} sobre outro usuário ${otherSockets[0]}`);
       socket.emit("other-user", otherSockets[0]);
       socket.to(otherSockets[0]).emit("other-user", socket.id);
     }
   });
 
   socket.on("offer", ({ target, sdp }) => {
+    console.log(`Offer de ${socket.id} para ${target}`);
     socket.to(target).emit("offer", { caller: socket.id, sdp });
   });
 
   socket.on("answer", ({ target, sdp }) => {
+    console.log(`Answer de ${socket.id} para ${target}`);
     socket.to(target).emit("answer", { sdp });
   });
 
   socket.on("ice-candidate", ({ target, candidate }) => {
+    console.log(`ICE de ${socket.id} para ${target}`);
     socket.to(target).emit("ice-candidate", { candidate });
   });
 
@@ -44,6 +49,7 @@ io.on("connection", (socket) => {
     console.log("Cliente saiu:", socket.id);
   });
 });
+
 
 const port = process.env.PORT || 4000;
 server.listen(port, () => {
