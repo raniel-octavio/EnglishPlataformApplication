@@ -249,10 +249,13 @@ export default function Platform() {
         throw new Error("Seu navegador não suporta câmera e microfone.");
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        console.log("Local stream inicializado:", stream);
+      } catch (err) {
+        console.error("Erro ao acessar câmera/microfone:", err);
+      }
+
 
       localStreamRef.current = stream;
       setLocalStream(stream);
