@@ -204,26 +204,13 @@ export default function Platform() {
     if (socketRef.current) return;
     const { io } = await import("socket.io-client");
 
-    // usar o link direto do Render
     const socketUrl = "https://englishplataformapplication.onrender.com";
-    const socketPath = "/socket.io"; // padrão do socket.io
-
-    const socket = io(socketUrl, {
-      path: socketPath,
-      transports: ["websocket", "polling"],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
+    const socket = io(socketUrl, { transports: ["websocket", "polling"] });
 
     socket.on("connect", () => {
       console.log("✅ Conectado ao socket:", socket.id);
       socket.emit("join-room", roomId);
       console.log("Entrando na sala:", roomId);
-    });
-
-    socket.on("connect_error", (err) => {
-      console.error("❌ Erro de conexão:", err.message);
     });
 
     socket.on("other-user", (userId) => {
@@ -232,12 +219,24 @@ export default function Platform() {
       callUser(userId);
     });
 
-    socket.on("offer", handleReceiveOffer);
-    socket.on("answer", handleReceiveAnswer);
-    socket.on("ice-candidate", handleReceiveIce);
+    socket.on("offer", (data) => {
+      console.log("Recebi offer:", data);
+      handleReceiveOffer(data);
+    });
+
+    socket.on("answer", (data) => {
+      console.log("Recebi answer:", data);
+      handleReceiveAnswer(data);
+    });
+
+    socket.on("ice-candidate", (data) => {
+      console.log("Recebi ICE:", data);
+      handleReceiveIce(data);
+    });
 
     socketRef.current = socket;
   };
+
 
 
 
