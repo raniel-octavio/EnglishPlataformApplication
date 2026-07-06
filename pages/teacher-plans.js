@@ -47,7 +47,7 @@ export default function TeacherPlans() {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
       <Navbar />
 
-      <main className="flex-grow pt-24 px-4 py-10 sm:py-12">
+      <main className="flex-grow px-4 pt-32 sm:pt-20 pb-10 sm:pb-12">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="mb-10 sm:mb-12 max-w-3xl"

@@ -99,7 +99,7 @@ export default function Teachers() {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
       <Navbar />
 
-      <main className="flex-grow pt-24 px-4 py-10 sm:py-12">
+      <main className="flex-grow px-4 pt-32 sm:pt-20 pb-10 sm:pb-12">
         <div className="max-w-7xl mx-auto">
           <motion.div
             className="mb-10 sm:mb-12"
@@ -115,34 +115,7 @@ export default function Teachers() {
               Conheca os melhores professores de ingles. Escolha, agende e comece suas aulas.
             </p>
 
-            <div className="bg-gradient-to-r from-yellow-400/10 to-orange-500/10 border border-yellow-400/30 rounded-xl p-5 sm:p-6 max-w-3xl">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h3 className="text-white font-bold text-lg mb-1">Voce e professor?</h3>
-                  <p className="text-blue-100">
-                    Veja os planos para ensinar na plataforma ou acesse seu ambiente de trabalho.
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <motion.a
-                    href="/teacher-plans"
-                    className="text-center bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-5 py-3 rounded-lg whitespace-nowrap"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                  >
-                    Ver planos
-                  </motion.a>
-                  <motion.a
-                    href="/teacher-login"
-                    className="text-center bg-slate-800/70 border border-blue-400/30 text-blue-100 font-bold px-5 py-3 rounded-lg whitespace-nowrap"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.96 }}
-                  >
-                    Area professor
-                  </motion.a>
-                </div>
-              </div>
-            </div>
+      
           </motion.div>
 
           <motion.div

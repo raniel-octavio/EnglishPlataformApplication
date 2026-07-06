@@ -26,7 +26,7 @@ export default function TeacherLogin() {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
       <Navbar />
 
-      <main className="flex-grow pt-24 px-4 py-10 sm:py-12">
+      <main className="flex-grow pt-24 px-4 py-10 sm:py-26">
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
           <motion.div
             className="hidden lg:block"

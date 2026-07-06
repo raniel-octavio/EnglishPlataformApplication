@@ -8,6 +8,13 @@ export default function TeacherPlatform() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("agenda");
   const [checkingAuth, setCheckingAuth] = useState(true);
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    if (router.query.tab) {
+      setActiveTab(router.query.tab);
+    }
+  }, [router.isReady, router.query.tab]);
   const [students, setStudents] = useState([
     { name: "Marina Costa", email: "marina@email.com", phone: "(11) 99999-0101", level: "Intermediario", goal: "Business English", progress: 78 },
     { name: "Rafael Lima", email: "rafael@email.com", phone: "(11) 99999-0202", level: "Basico", goal: "Conversacao", progress: 42 },
@@ -56,6 +63,7 @@ export default function TeacherPlatform() {
     { id: "agenda", label: "Agenda" },
     { id: "calendar", label: "Calendario" },
     { id: "cadastro", label: "Cadastrar aluno" },
+    { id: "cursos", label: "Cadastrar Curso" },
     { id: "alunos", label: "Alunos" },
     { id: "materiais", label: "Materiais" },
     { id: "ganhos", label: "Ganhos" },
@@ -377,7 +385,37 @@ export default function TeacherPlatform() {
                   </div>
                 </motion.div>
               )}
+              {activeTab === "cursos" && (
+              <motion.div
+                className="bg-slate-950/60 border border-blue-400/20 rounded-xl p-5 sm:p-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="text-2xl font-black text-white">
+                      Cursos
+                    </h2>
+                    <p className="text-blue-200">
+                      Gerencie os cursos disponíveis para seus alunos.
+                    </p>
+                  </div>
 
+                  <button
+                    onClick={() => router.push("/create-course")}
+                    className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold px-6 py-3 rounded-lg hover:scale-105 transition"
+                  >
+                    + Criar curso
+                  </button>
+                </div>
+
+                <div className="bg-slate-800/60 rounded-lg p-8 text-center">
+                  <p className="text-blue-200">
+                    Nenhum curso cadastrado.
+                  </p>
+                </div>
+              </motion.div>
+            )}
               {activeTab === "materiais" && (
                 <motion.div className="bg-slate-950/60 border border-blue-400/20 rounded-xl p-5 sm:p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <h2 className="text-2xl font-black text-white mb-5">Materiais</h2>

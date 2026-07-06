@@ -1,9 +1,8 @@
 {
   "/_app": "pages/_app.js",
-  "/_document": "pages/_document.js",
   "/_error": "pages/_error.js",
-  "/classes": "pages/classes.js",
-  "/": "pages/index.js",
-  "/teachers": "pages/teachers.js",
-  "/login": "pages/login.js"
+  "/_document": "pages/_document.js",
+  "/teacher-platform": "pages/teacher-platform.js",
+  "/create-course": "pages/create-course.js",
+  "/": "pages/index.js"
 }
