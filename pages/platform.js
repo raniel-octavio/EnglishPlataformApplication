@@ -199,8 +199,11 @@ export default function Platform() {
   const initSocket = async () => {
     if (socketRef.current) return;
     const { io } = await import("socket.io-client");
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || window.location.origin;
-    const socketPath = process.env.NEXT_PUBLIC_SOCKET_PATH || (process.env.NEXT_PUBLIC_SOCKET_URL ? "/socket.io" : "/api/socket");
+
+    // sempre usar o domínio do Render
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
+    const socketPath = process.env.NEXT_PUBLIC_SOCKET_PATH || "/socket.io";
+
     const socket = io(socketUrl, {
       path: socketPath,
       transports: ["websocket", "polling"],
@@ -210,7 +213,12 @@ export default function Platform() {
     });
 
     socket.on("connect", () => {
+      console.log("✅ Conectado ao socket:", socket.id);
       socket.emit("join-room", roomId);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("❌ Erro de conexão:", err.message);
     });
 
     socket.on("other-user", (userId) => {
@@ -224,6 +232,7 @@ export default function Platform() {
 
     socketRef.current = socket;
   };
+
 
   const handleStartMeeting = async () => {
     setMeetingError("");
@@ -315,7 +324,7 @@ export default function Platform() {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
       <Navbar />
 
-      <main className="flex-grow pt-24 px-3 sm:px-4 py-6 sm:py-8">
+      <main className="flex-grow pt-24 px-3 sm:px-4 py-6 sm:py-15">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <motion.div
@@ -324,9 +333,9 @@ export default function Platform() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-3xl sm:text-4xl font-black text-white mb-2">
-              Sua Plataforma de
-              <span className="block text-yellow-400">Aprendizado</span>
+            <h1 className="text-3xl sm:text-4xl font-black mb-2">
+              <span className="text-white">Sua Plataforma de </span>
+              <span className="text-yellow-400">Aprendizado</span>
             </h1>
             <p className="text-lg text-blue-100">Organize aulas, arquivos e reuniões em um só lugar</p>
           </motion.div>
