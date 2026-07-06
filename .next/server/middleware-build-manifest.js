@@ -24,21 +24,6 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/become-teacher": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/become-teacher.js"
-    ],
-    "/classes": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/classes.js"
-    ],
-    "/create-course": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/create-course.js"
-    ],
     "/login": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -48,26 +33,6 @@ self.__BUILD_MANIFEST = {
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/platform.js"
-    ],
-    "/teacher-login": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/teacher-login.js"
-    ],
-    "/teacher-plans": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/teacher-plans.js"
-    ],
-    "/teacher-platform": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/teacher-platform.js"
-    ],
-    "/teachers": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/teachers.js"
     ]
   },
   "ampFirstPages": []

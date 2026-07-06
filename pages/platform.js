@@ -27,6 +27,7 @@ export default function Platform() {
   const [otherUserId, setOtherUserId] = useState(null);
   const roomId = "english-class-room";
   const otherUserIdRef = useRef(null);
+  const targetUserIdRef = useRef(null); // Armazena o target para ICE candidate
 
   const stopLocalStream = () => {
     localStream?.getTracks().forEach((track) => track.stop());
@@ -70,6 +71,7 @@ export default function Platform() {
     setRemoteConnected(false);
     setOtherUserId(null);
     otherUserIdRef.current = null;
+    targetUserIdRef.current = null;
   };
 
 
@@ -231,8 +233,10 @@ export default function Platform() {
     }
     console.log("📤 Iniciando chamada para:", userId);
 
-    // Usa o userId do ref (mais confiável) ou do parâmetro
+    // Atualiza o targetUserIdRef
     const targetUserId = otherUserIdRef.current || userId;
+    targetUserIdRef.current = targetUserId;
+    console.log("🎯 Target definido:", targetUserId);
     
     // Reutiliza a conexão existente ou cria nova
     let pc = pcRef.current;
@@ -273,6 +277,8 @@ export default function Platform() {
     const { io } = await import("socket.io-client");
 
     const socketUrl = "https://englishplataformapplication.onrender.com";
+    console.log("🔌 Conectando ao socket em:", socketUrl);
+    
     const socket = io(socketUrl, { 
       transports: ["websocket", "polling"],
       reconnection: true,
@@ -283,6 +289,11 @@ export default function Platform() {
       console.log("✅ Conectado ao socket:", socket.id);
       socket.emit("join-room", roomId);
       console.log("🚪 Entrando na sala:", roomId);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("❌ Erro de conexão socket:", err);
+      setMeetingError("Não foi possível conectar ao servidor de sinalização. Verifique se o servidor está rodando.");
     });
 
     socket.on("other-user", (userId) => {
@@ -367,25 +378,10 @@ export default function Platform() {
     // Se já existe uma conexão, reutiliza
     if (pcRef.current) {
       console.log("♻️ Reutilizando PeerConnection existente");
-      // Garante que as tracks foram adicionadas
-      if (localStreamRef.current) {
-        const senders = pcRef.current.getSenders();
-        const hasVideo = senders.some(s => s.track && s.track.kind === "video");
-        const hasAudio = senders.some(s => s.track && s.track.kind === "audio");
-        
-        if (!hasVideo || !hasAudio) {
-          localStreamRef.current.getTracks().forEach(track => {
-            if ((track.kind === "video" && !hasVideo) || (track.kind === "audio" && !hasAudio)) {
-              pcRef.current.addTrack(track, localStreamRef.current);
-              console.log("➕ Track adicionada (reutilizando):", track.kind);
-            }
-          });
-        }
-      }
       return pcRef.current;
     }
     
-    console.log("🔗 Criando nova PeerConnection...");
+    console.log("🔗 Criando nova PeerConnection com target:", userId);
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" }
@@ -414,8 +410,8 @@ export default function Platform() {
     // Enviar candidatos ICE para o outro peer
     pc.onicecandidate = (event) => {
       if (event.candidate && socketRef.current) {
-        // Usa o userId do parâmetro ou do ref
-        const targetId = userId || otherUserIdRef.current;
+        // Usa o targetUserIdRef (mais confiável) ou otherUserIdRef
+        const targetId = targetUserIdRef.current || otherUserIdRef.current;
         if (!targetId) {
           console.log("⚠️ ICE candidate sem target válido");
           return;
@@ -425,6 +421,8 @@ export default function Platform() {
           target: targetId,
           candidate: event.candidate,
         });
+      } else if (!event.candidate) {
+        console.log("🏁 ICE candidate gathering completo");
       }
     };
 
