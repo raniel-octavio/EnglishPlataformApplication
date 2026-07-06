@@ -83,8 +83,9 @@ export default function Platform() {
   // Receber tracks remotas
   pc.ontrack = (event) => {
     if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = event.streams[0];
-      remoteVideoRef.current.play().catch(() => {});
+    remoteVideoRef.current.srcObject = event.streams[0];
+    remoteVideoRef.current.play().catch(() => {});
+    setRemoteConnected(true); // <- marca que o remoto chegou
     }
   };
 
