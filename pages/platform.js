@@ -24,10 +24,12 @@ export default function Platform() {
   const [isSharingScreen, setIsSharingScreen] = useState(false);
   const [meetingError, setMeetingError] = useState("");
   const [remoteConnected, setRemoteConnected] = useState(false);
+  const [remoteStream, setRemoteStream] = useState(null);
   const [otherUserId, setOtherUserId] = useState(null);
   const roomId = "english-class-room";
   const otherUserIdRef = useRef(null);
   const targetUserIdRef = useRef(null); // Armazena o target para ICE candidate
+  const remoteStreamRef = useRef(null);
 
   const stopLocalStream = () => {
     localStream?.getTracks().forEach((track) => track.stop());
@@ -69,9 +71,11 @@ export default function Platform() {
     }
     setIsSharingScreen(false);
     setRemoteConnected(false);
+    setRemoteStream(null);
     setOtherUserId(null);
     otherUserIdRef.current = null;
     targetUserIdRef.current = null;
+    remoteStreamRef.current = null;
   };
 
 
@@ -399,10 +403,13 @@ export default function Platform() {
     // Receber tracks remotas
     pc.ontrack = (event) => {
       console.log("📺 Track recebida:", event.streams[0]);
+      remoteStreamRef.current = event.streams[0];
+      setRemoteStream(event.streams[0]);
+      setRemoteConnected(true);
+
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
         remoteVideoRef.current.play().catch(() => {});
-        setRemoteConnected(true); // <- marca que o remoto chegou
         console.log("✅ Vídeo remoto exibido");
       }
     };
@@ -443,6 +450,16 @@ export default function Platform() {
     videoEl.srcObject = localStream;
     videoEl.play().catch(() => {});
   }, [localStream, inMeeting]);
+
+  useEffect(() => {
+    if (!remoteStream || !inMeeting) return;
+    const videoEl = remoteVideoRef.current;
+    if (!videoEl) return;
+
+    videoEl.srcObject = remoteStream;
+    videoEl.play().catch(() => {});
+    setRemoteConnected(true);
+  }, [remoteStream, inMeeting]);
 
   // Cleanup ao desmontar
   useEffect(() => {
@@ -711,7 +728,7 @@ export default function Platform() {
                           </motion.button>
                           <motion.button
                             onClick={() => {
-                              stopLocalStream();
+                              cleanUpMeeting();
                               setInMeeting(false);
                             }}
                             className="bg-red-600 hover:bg-red-700 text-white px-5 sm:px-6 py-3 rounded-full font-bold"

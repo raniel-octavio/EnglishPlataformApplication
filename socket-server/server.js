@@ -27,7 +27,6 @@ io.on("connection", (socket) => {
     if (otherSockets.length > 0) {
       console.log(`👥 Notificando ${socket.id} sobre outro usuário ${otherSockets[0]}`);
       socket.emit("other-user", otherSockets[0]);
-      socket.to(otherSockets[0]).emit("other-user", socket.id);
     }
   });
 
