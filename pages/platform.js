@@ -136,26 +136,38 @@ export default function Platform() {
   };
 
   const handleReceiveOffer = async ({ sdp, caller }) => {
-    if (!socketRef.current) return;
-    const pc = createPeerConnection(caller);
-    await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    socketRef.current.emit("answer", {
-      target: caller,
-      sdp: pc.localDescription,
-    });
+    console.log("📥 Processando offer de:", caller, sdp);
+    if (!pcRef.current) {
+      console.log("⚠️ Nenhum PeerConnection ativo, criando...");
+      pcRef.current = createPeerConnection(caller);
+    }
+    await pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
+    const answer = await pcRef.current.createAnswer();
+    await pcRef.current.setLocalDescription(answer);
+    console.log("📤 Enviando answer:", answer.sdp);
+    socketRef.current.emit("answer", { target: caller, sdp: answer });
   };
 
   const handleReceiveAnswer = async ({ sdp }) => {
-    if (!pcRef.current) return;
+    console.log("📥 Processando answer:", sdp);
+    if (!pcRef.current) {
+      console.log("⚠️ Nenhum PeerConnection ativo ao receber answer");
+      return;
+    }
     await pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
+    console.log("✅ Answer aplicada no PeerConnection");
   };
 
   const handleReceiveIce = async ({ candidate }) => {
-    if (!pcRef.current || !candidate) return;
+    console.log("❄️ Processando ICE:", candidate);
+    if (!pcRef.current || !candidate) {
+      console.log("⚠️ ICE ignorado, PeerConnection ou candidato inválido");
+      return;
+    }
     await pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+    console.log("✅ ICE candidate adicionado ao PeerConnection");
   };
+
 
   const callUser = async (userId) => {
     if (!socketRef.current || !localStream) return;
