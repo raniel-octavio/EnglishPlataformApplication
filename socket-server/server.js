@@ -2,6 +2,7 @@ import http from "http";
 import { Server } from "socket.io";
 
 const server = http.createServer((req, res) => {
+  // rota simples para teste
   res.writeHead(200, { "Content-Type": "text/plain" });
   res.end("Socket server is running");
 });
@@ -24,46 +25,31 @@ io.on("connection", (socket) => {
       .filter((id) => id !== socket.id);
 
     if (otherSockets.length > 0) {
-      // Notifica o novo cliente sobre o outro
       console.log(`👥 Notificando ${socket.id} sobre outro usuário ${otherSockets[0]}`);
       socket.emit("other-user", otherSockets[0]);
-
-      // Também notifica o outro cliente sobre o novo
-      console.log(`👥 Notificando ${otherSockets[0]} sobre novo usuário ${socket.id}`);
-      socket.to(otherSockets[0]).emit("other-user", socket.id);
     }
   });
 
   socket.on("offer", ({ target, caller, sdp }) => {
-    if (!target) {
-      console.warn("⚠️ Offer recebida sem target válido");
-      return;
-    }
     console.log(`📤 Offer recebida de ${socket.id} para ${target}`);
     socket.to(target).emit("offer", { caller, sdp });
     console.log(`➡️ Offer repassada para ${target}`);
   });
 
   socket.on("answer", ({ target, caller, sdp }) => {
-    if (!target) {
-      console.warn("⚠️ Answer recebida sem target válido");
-      return;
-    }
     console.log(`📤 Answer recebida de ${socket.id} para ${target}`);
     socket.to(target).emit("answer", { caller, sdp });
     console.log(`➡️ Answer repassada para ${target}`);
   });
 
+
+
   socket.on("ice-candidate", ({ target, caller, candidate }) => {
-    if (!target) {
-      console.warn("⚠️ ICE recebido sem target válido");
-      return;
-    }
     console.log(`❄️ ICE recebido de ${socket.id} para ${target}`);
     socket.to(target).emit("ice-candidate", { caller: socket.id, candidate });
     console.log(`➡️ ICE repassado para ${target}`);
   });
-
+  
   socket.on("disconnect", () => {
     console.log("❌ Cliente saiu:", socket.id);
   });
