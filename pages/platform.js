@@ -229,39 +229,33 @@ export default function Platform() {
   };
 
 
-const callUser = async (userId) => {
-  if (!socketRef.current || !localStreamRef.current) {
-    console.log("⚠️ callUser: socket ou stream não prontos");
-    return;
-  }
-  console.log("📤 Iniciando chamada para:", userId);
 
-  // Define o target: usa o otherUserId se existir, senão usa o userId recebido
-  const targetUserId = otherUserIdRef.current || userId;
+  const callUser = async (userId) => {
+    if (!socketRef.current || !localStreamRef.current) {
+      console.log("⚠️ callUser: socket ou stream não prontos");
+      return;
+    }
+    console.log("📤 Iniciando chamada para:", userId);
 
-  if (!targetUserId) {
-    console.log("⚠️ Nenhum usuário alvo definido para a chamada");
-    return;
-  }
-
-  targetUserIdRef.current = targetUserId;
-  console.log("🎯 Target definido:", targetUserId);
-
-  // Reutiliza a conexão existente ou cria nova
-  let pc = pcRef.current;
-  if (!pc) {
-    console.log("🔗 Criando nova PeerConnection em callUser para:", targetUserId);
-    pc = createPeerConnection(targetUserId);
-    pcRef.current = pc;
-  }
-
-  // Só cria offer se o signaling state estiver estável
-  if (pc.signalingState !== "stable") {
-    console.log("ℹ️ Offer já criada ou em andamento, signaling state:", pc.signalingState);
-    return;
-  }
-
-  try {
+    // Atualiza o targetUserIdRef
+    const targetUserId = otherUserIdRef.current || userId;
+    targetUserIdRef.current = targetUserId;
+    console.log("🎯 Target definido:", targetUserId);
+    
+    // Reutiliza a conexão existente ou cria nova
+    let pc = pcRef.current;
+    if (!pc) {
+      console.log("🔗 Criando nova PeerConnection em callUser");
+      pc = createPeerConnection(targetUserId);
+      pcRef.current = pc;
+    }
+    
+    // Só cria offer se o signaling state estiver stable
+    if (pc.signalingState !== "stable") {
+      console.log("ℹ️ Offer já criada ou em andamento, signaling state:", pc.signalingState);
+      return;
+    }
+    
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
@@ -277,10 +271,7 @@ const callUser = async (userId) => {
     });
 
     console.log("📤 Offer enviada para:", targetUserId);
-  } catch (err) {
-    console.error("❌ Erro ao criar/enviar offer:", err);
-  }
-};
+  };
 
 
 
